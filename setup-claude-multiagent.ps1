@@ -680,22 +680,24 @@ $helperBlock = @"
 # Claude Code Multi-Agent Helpers (auto-generated)
 # ============================================================
 $profileFunctions
+"@ + @'
+
 function claude-agents {
     param(
-        [Parameter(Mandatory=`$true)]
-        [int]`$Count,
+        [Parameter(Mandatory=$true)]
+        [int]$Count,
 
-        [Parameter(Mandatory=`$false)]
-        [string]`$ProjectDir = (Get-Location),
+        [Parameter(Mandatory=$false)]
+        [string]$ProjectDir = (Get-Location),
 
-        [Parameter(Mandatory=`$false)]
-        [string[]]`$Branches,
+        [Parameter(Mandatory=$false)]
+        [string[]]$Branches,
 
-        [Parameter(Mandatory=`$false)]
-        [switch]`$Desktop,
+        [Parameter(Mandatory=$false)]
+        [switch]$Desktop,
 
-        [Parameter(Mandatory=`$false)]
-        [string]`$Profile = ""
+        [Parameter(Mandatory=$false)]
+        [string]$Profile = ""
     )
 
     <#
@@ -709,58 +711,58 @@ function claude-agents {
     claude-agents -Count 2 -Profile personal
     #>
 
-    if (-not (Test-Path `$ProjectDir)) {
-        Write-Host "[ERROR] ディレクトリが見つかりません: `$ProjectDir" -ForegroundColor Red
+    if (-not (Test-Path $ProjectDir)) {
+        Write-Host "[ERROR] ディレクトリが見つかりません: $ProjectDir" -ForegroundColor Red
         return
     }
 
-    `$mode = if (`$Desktop) { "Claude Desktop" } else { "Claude Code CLI" }
+    $mode = if ($Desktop) { "Claude Desktop" } else { "Claude Code CLI" }
     Write-Host ""
     Write-Host "  Claude Code マルチエージェント起動" -ForegroundColor Cyan
-    Write-Host "  モード: `$mode" -ForegroundColor Gray
-    if (`$Profile) { Write-Host "  プロファイル: `$Profile" -ForegroundColor Gray }
-    Write-Host "  エージェント数: `$Count" -ForegroundColor Gray
-    Write-Host "  プロジェクト: `$ProjectDir" -ForegroundColor Gray
+    Write-Host "  モード: $mode" -ForegroundColor Gray
+    if ($Profile) { Write-Host "  プロファイル: $Profile" -ForegroundColor Gray }
+    Write-Host "  エージェント数: $Count" -ForegroundColor Gray
+    Write-Host "  プロジェクト: $ProjectDir" -ForegroundColor Gray
     Write-Host ""
 
-    for (`$i = 1; `$i -le `$Count; `$i++) {
-        `$branch = ""
-        if (`$Branches -and `$Branches.Count -ge `$i) {
-            `$branch = `$Branches[`$i - 1]
+    for ($i = 1; $i -le $Count; $i++) {
+        $branch = ""
+        if ($Branches -and $Branches.Count -ge $i) {
+            $branch = $Branches[$i - 1]
         }
 
-        if (`$Desktop) {
-            `$configFile = Join-Path `$env:USERPROFILE ".claude-multiagent-config.json"
-            if (Test-Path `$configFile) {
-                `$config = Get-Content `$configFile -Raw | ConvertFrom-Json
-                `$desktopPath = `$config.claudeDesktop
-                if (`$desktopPath -and (Test-Path `$desktopPath)) {
-                    Start-Process `$desktopPath
-                    Write-Host "  [Agent `$i] Claude Desktop を起動しました" -ForegroundColor Green
-                    Write-Host "           プロジェクトフォルダ: `$ProjectDir" -ForegroundColor Gray
+        if ($Desktop) {
+            $configFile = Join-Path $env:USERPROFILE ".claude-multiagent-config.json"
+            if (Test-Path $configFile) {
+                $config = Get-Content $configFile -Raw | ConvertFrom-Json
+                $desktopPath = $config.claudeDesktop
+                if ($desktopPath -and (Test-Path $desktopPath)) {
+                    Start-Process $desktopPath
+                    Write-Host "  [Agent $i] Claude Desktop を起動しました" -ForegroundColor Green
+                    Write-Host "           プロジェクトフォルダ: $ProjectDir" -ForegroundColor Gray
                 } else {
                     Write-Host "  [WARN] Claude Desktop のパスが見つかりません" -ForegroundColor Yellow
                 }
             }
         } else {
-            `$script = ""
-            if (`$Profile) {
-                `$profileDir = Join-Path `$env:USERPROFILE ".claude-`$Profile"
-                `$script += "`$env:CLAUDE_CONFIG_DIR = '`$profileDir'; "
+            $script = ""
+            if ($Profile) {
+                $profileDir = Join-Path $env:USERPROFILE ".claude-$Profile"
+                $script += "$env:CLAUDE_CONFIG_DIR = '$profileDir'; "
             }
-            `$script += "Set-Location '`$ProjectDir'; "
-            `$script += "Write-Host '=== Claude Agent `$i ===' -ForegroundColor Cyan; "
-            if (`$Profile) {
-                `$script += "Write-Host 'Profile: `$Profile' -ForegroundColor Magenta; "
+            $script += "Set-Location '$ProjectDir'; "
+            $script += "Write-Host '=== Claude Agent $i ===' -ForegroundColor Cyan; "
+            if ($Profile) {
+                $script += "Write-Host 'Profile: $Profile' -ForegroundColor Magenta; "
             }
-            if (`$branch) {
-                `$script += "git checkout -B '`$branch' 2>`$null; "
-                `$script += "Write-Host 'Branch: `$branch' -ForegroundColor Yellow; "
+            if ($branch) {
+                $script += "git checkout -B '$branch' 2>$null; "
+                $script += "Write-Host 'Branch: $branch' -ForegroundColor Yellow; "
             }
-            `$script += "claude"
+            $script += "claude"
 
-            Start-Process pwsh -ArgumentList "-NoExit", "-Command", `$script
-            Write-Host "  [Agent `$i] 起動しました $(if(`$branch){"(branch: `$branch) "})$(if(`$Profile){"[`$Profile]"})" -ForegroundColor Green
+            Start-Process pwsh -ArgumentList "-NoExit", "-Command", $script
+            Write-Host "  [Agent $i] 起動しました $(if($branch){"(branch: $branch) "})$(if($Profile){"[$Profile]"})" -ForegroundColor Green
         }
     }
 
@@ -770,11 +772,11 @@ function claude-agents {
 
 function claude-setup-repo {
     param(
-        [Parameter(Mandatory=`$true)]
-        [string]`$RepoName,
+        [Parameter(Mandatory=$true)]
+        [string]$RepoName,
 
-        [Parameter(Mandatory=`$false)]
-        [switch]`$Private
+        [Parameter(Mandatory=$false)]
+        [switch]$Private
     )
 
     <#
@@ -786,45 +788,45 @@ function claude-setup-repo {
     claude-setup-repo my-secret-project -Private
     #>
 
-    `$configFile = Join-Path `$env:USERPROFILE ".claude-multiagent-config.json"
-    if (-not (Test-Path `$configFile)) {
+    $configFile = Join-Path $env:USERPROFILE ".claude-multiagent-config.json"
+    if (-not (Test-Path $configFile)) {
         Write-Host "[ERROR] 設定ファイルが見つかりません。setup-claude-multiagent.ps1 を先に実行してください。" -ForegroundColor Red
         return
     }
 
-    `$config = Get-Content `$configFile -Raw | ConvertFrom-Json
-    `$pat = `$config.pat
-    `$email = `$config.email
-    `$ghUser = `$config.ghUser
+    $config = Get-Content $configFile -Raw | ConvertFrom-Json
+    $pat = $config.pat
+    $email = $config.email
+    $ghUser = $config.ghUser
 
-    Write-Host "  リポジトリ作成中: `$ghUser/`$RepoName ..." -ForegroundColor Cyan
+    Write-Host "  リポジトリ作成中: $ghUser/$RepoName ..." -ForegroundColor Cyan
 
     try {
-        `$body = @{ name = `$RepoName; private = [bool]`$Private; auto_init = `$true } | ConvertTo-Json
-        `$headers = @{ Authorization = "token `$pat"; "Content-Type" = "application/json" }
-        `$null = Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers `$headers -Body `$body
+        $body = @{ name = $RepoName; private = [bool]$Private; auto_init = $true } | ConvertTo-Json
+        $headers = @{ Authorization = "token $pat"; "Content-Type" = "application/json" }
+        $null = Invoke-RestMethod -Uri "https://api.github.com/user/repos" -Method Post -Headers $headers -Body $body
         Start-Sleep -Seconds 2
     } catch {
-        Write-Host "  [WARN] 作成失敗（既に存在する可能性があります）: `$_" -ForegroundColor Yellow
+        Write-Host "  [WARN] 作成失敗（既に存在する可能性があります）: $_" -ForegroundColor Yellow
     }
 
-    git clone "https://`${ghUser}:`${pat}@github.com/`${ghUser}/`${RepoName}.git"
-    Set-Location `$RepoName
-    git config user.name `$ghUser
-    git config user.email `$email
+    git clone "https://${ghUser}:${pat}@github.com/${ghUser}/${RepoName}.git"
+    Set-Location $RepoName
+    git config user.name $ghUser
+    git config user.email $email
     git config credential.useHttpPath true
 
-    `$gitCredFile = Join-Path `$env:USERPROFILE ".git-credentials"
-    `$credLine = "https://`${ghUser}:`${pat}@github.com"
-    `$existingCreds = ""
-    if (Test-Path `$gitCredFile) {
-        `$existingCreds = Get-Content `$gitCredFile -Raw -ErrorAction SilentlyContinue
+    $gitCredFile = Join-Path $env:USERPROFILE ".git-credentials"
+    $credLine = "https://${ghUser}:${pat}@github.com"
+    $existingCreds = ""
+    if (Test-Path $gitCredFile) {
+        $existingCreds = Get-Content $gitCredFile -Raw -ErrorAction SilentlyContinue
     }
-    if (-not `$existingCreds -or -not `$existingCreds.Contains(`$credLine)) {
-        Add-Content -Path `$gitCredFile -Value `$credLine -Encoding UTF8
+    if (-not $existingCreds -or -not $existingCreds.Contains($credLine)) {
+        Add-Content -Path $gitCredFile -Value $credLine -Encoding UTF8
     }
 
-    Write-Host "  [OK] セットアップ完了: `$ghUser/`$RepoName" -ForegroundColor Green
+    Write-Host "  [OK] セットアップ完了: $ghUser/$RepoName" -ForegroundColor Green
     Write-Host ""
     Write-Host "  使い方:" -ForegroundColor White
     Write-Host "    CLI:     このフォルダで 'claude' を実行" -ForegroundColor Gray
@@ -841,7 +843,7 @@ function claude-status {
     Write-Host "  Claude Code マルチエージェント 環境状態" -ForegroundColor Cyan
     Write-Host "  ==============================" -ForegroundColor Gray
 
-    `$tools = @(
+    $tools = @(
         @{ Name = "Node.js";        Cmd = "node";   Ver = { node -v } },
         @{ Name = "npm";            Cmd = "npm";    Ver = { npm -v } },
         @{ Name = "Git";            Cmd = "git";    Ver = { (git --version) -replace "git version ","" } },
@@ -849,67 +851,67 @@ function claude-status {
         @{ Name = "Claude Code CLI";Cmd = "claude"; Ver = { "installed" } }
     )
 
-    foreach (`$tool in `$tools) {
-        `$installed = `$null -ne (Get-Command `$tool.Cmd -ErrorAction SilentlyContinue)
-        if (`$installed) {
-            `$ver = try { & `$tool.Ver } catch { "?" }
-            Write-Host "  [OK]   `$(`$tool.Name): `$ver" -ForegroundColor Green
+    foreach ($tool in $tools) {
+        $installed = $null -ne (Get-Command $tool.Cmd -ErrorAction SilentlyContinue)
+        if ($installed) {
+            $ver = try { & $tool.Ver } catch { "?" }
+            Write-Host "  [OK]   $($tool.Name): $ver" -ForegroundColor Green
         } else {
-            Write-Host "  [NG]   `$(`$tool.Name): 未インストール" -ForegroundColor Red
+            Write-Host "  [NG]   $($tool.Name): 未インストール" -ForegroundColor Red
         }
     }
 
-    `$configFile = Join-Path `$env:USERPROFILE ".claude-multiagent-config.json"
-    if (Test-Path `$configFile) {
-        `$config = Get-Content `$configFile -Raw | ConvertFrom-Json
+    $configFile = Join-Path $env:USERPROFILE ".claude-multiagent-config.json"
+    if (Test-Path $configFile) {
+        $config = Get-Content $configFile -Raw | ConvertFrom-Json
 
         # Claude Desktop
-        if (`$config.claudeDesktop -and (Test-Path `$config.claudeDesktop)) {
-            Write-Host "  [OK]   Claude Desktop: `$(`$config.claudeDesktop)" -ForegroundColor Green
+        if ($config.claudeDesktop -and (Test-Path $config.claudeDesktop)) {
+            Write-Host "  [OK]   Claude Desktop: $($config.claudeDesktop)" -ForegroundColor Green
         } else {
             Write-Host "  [--]   Claude Desktop: 未検出" -ForegroundColor Yellow
         }
 
         # アカウント情報
-        `$maskedPat = `$config.pat.Substring(0,7) + "..." + `$config.pat.Substring(`$config.pat.Length - 4)
+        $maskedPat = $config.pat.Substring(0,7) + "..." + $config.pat.Substring($config.pat.Length - 4)
         Write-Host ""
         Write-Host "  アカウント構成:" -ForegroundColor White
-        Write-Host "    Claude モード: `$(switch(`$config.claudeMode){'1'{'単一アカウント'}'2'{'再ログイン切替'}'3'{'プロファイル分離'}})" -ForegroundColor Gray
+        Write-Host "    Claude モード: $(switch($config.claudeMode){'1'{'単一アカウント'}'2'{'再ログイン切替'}'3'{'プロファイル分離'}})" -ForegroundColor Gray
 
-        if (`$config.claudeProfiles) {
-            foreach (`$p in `$config.claudeProfiles) {
-                Write-Host "      - `$(`$p.name): `$(`$p.note)" -ForegroundColor Gray
+        if ($config.claudeProfiles) {
+            foreach ($p in $config.claudeProfiles) {
+                Write-Host "      - $($p.name): $($p.note)" -ForegroundColor Gray
             }
         }
 
-        Write-Host "    GitHub: `$(`$config.ghUser)" -ForegroundColor Gray
-        Write-Host "    Email:  `$(`$config.email)" -ForegroundColor Gray
-        Write-Host "    PAT:    `$maskedPat" -ForegroundColor Gray
-        Write-Host "    更新日: `$(`$config.updated)" -ForegroundColor Gray
+        Write-Host "    GitHub: $($config.ghUser)" -ForegroundColor Gray
+        Write-Host "    Email:  $($config.email)" -ForegroundColor Gray
+        Write-Host "    PAT:    $maskedPat" -ForegroundColor Gray
+        Write-Host "    更新日: $($config.updated)" -ForegroundColor Gray
     } else {
         Write-Host ""
         Write-Host "  [NG]   設定ファイルが未作成" -ForegroundColor Red
     }
 
-    `$gitCredFile = Join-Path `$env:USERPROFILE ".git-credentials"
-    if (Test-Path `$gitCredFile) {
+    $gitCredFile = Join-Path $env:USERPROFILE ".git-credentials"
+    if (Test-Path $gitCredFile) {
         Write-Host "  [OK]   .git-credentials: 設定済み" -ForegroundColor Green
     } else {
         Write-Host "  [NG]   .git-credentials: 未設定" -ForegroundColor Red
     }
 
     if (Test-Path ".git") {
-        `$remoteUrl = git remote get-url origin 2>`$null
-        if (`$remoteUrl) {
-            `$remoteUrl = `$remoteUrl -replace '://[^@]+@','://***@'
+        $remoteUrl = git remote get-url origin 2>$null
+        if ($remoteUrl) {
+            $remoteUrl = $remoteUrl -replace '://[^@]+@','://***@'
         }
         Write-Host ""
         Write-Host "  現在のリポジトリ:" -ForegroundColor White
-        Write-Host "    ディレクトリ: `$(Get-Location)" -ForegroundColor Gray
-        Write-Host "    ブランチ:     `$(git branch --show-current 2>`$null)" -ForegroundColor Gray
-        Write-Host "    リモート:     `$remoteUrl" -ForegroundColor Gray
-        Write-Host "    user.name:    `$(git config user.name 2>`$null)" -ForegroundColor Gray
-        Write-Host "    user.email:   `$(git config user.email 2>`$null)" -ForegroundColor Gray
+        Write-Host "    ディレクトリ: $(Get-Location)" -ForegroundColor Gray
+        Write-Host "    ブランチ:     $(git branch --show-current 2>$null)" -ForegroundColor Gray
+        Write-Host "    リモート:     $remoteUrl" -ForegroundColor Gray
+        Write-Host "    user.name:    $(git config user.name 2>$null)" -ForegroundColor Gray
+        Write-Host "    user.email:   $(git config user.email 2>$null)" -ForegroundColor Gray
     }
 
     Write-Host ""
@@ -919,7 +921,7 @@ Set-Alias -Name cma -Value claude-agents -Description "Claude Multi-Agent"
 Set-Alias -Name csr -Value claude-setup-repo -Description "Claude Setup Repo"
 Set-Alias -Name cs -Value claude-status -Description "Claude Status"
 
-"@
+'@
 
 # プロファイルに追記（重複チェック）
 if (Test-Path $PROFILE) {
